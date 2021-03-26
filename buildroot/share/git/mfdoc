@@ -16,23 +16,20 @@ BRANCH=${INFO[5]}
 [[ $ORG == "MarlinFirmware" && $REPO == "MarlinDocumentation" ]] || { echo "Wrong repository." 1>&2; exit 1; }
 
 opensite() {
+  TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
   URL="http://127.0.0.1:4000/"
-  OPEN=$(echo $(which gnome-open xdg-open open) | awk '{ print $1 }')
-  if [ -z "$OPEN" ]; then
+  if [ -z "$TOOL" ]; then
     echo "Can't find a tool to open the URL:"
     echo $URL
   else
     echo "Opening preview site in the browser..."
-    "$OPEN" "$URL"
+    "$TOOL" "$URL"
   fi
 }
 
 echo "Previewing MarlinDocumentation..."
 
-bundle exec jekyll serve --watch --incremental | {
-  while IFS= read -r line
-  do
-    [[ $line =~ "Server running" ]] && opensite
-    echo "$line"
-  done
-}
+# wait to open the url for about 8s
+( sleep 45; opensite ) &
+
+bundle exec jekyll serve --watch --incremental
